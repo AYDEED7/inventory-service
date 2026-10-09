@@ -10,19 +10,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class OrderService {
 
     private final ProductRepository productRepository;
     private final ShopOrderRepository orderRepository;
     private final long reservationMinutes;
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+    private final int lowStockThreshold;
 
     public OrderService(ProductRepository productRepository,
                         ShopOrderRepository orderRepository,
-                        @Value("${shop.reservation-minutes:10}") long reservationMinutes) {
+                        @Value("${shop.reservation-minutes:10}") long reservationMinutes, @Value("${shop.low-stock-threshold:5}") int lowStockThreshold) {
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.reservationMinutes = reservationMinutes;
+        this.lowStockThreshold = lowStockThreshold;
     }
 
     @Transactional
@@ -32,6 +38,10 @@ public class OrderService {
         }
         if (productRepository.reserve(productId, quantity) == 0) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Not enough stock");
+        }
+        Product reserved = productRepository.findById(productId).orElseThrow();
+        if (reserved.getStock() < lowStockThreshold) {
+            log.warn("Low stock: product {} has {} left", productId, reserved.getStock());
         }
         Instant now = Instant.now();
         ShopOrder order = new ShopOrder();
