@@ -28,6 +28,7 @@ public class Product {
     private BigDecimal price;
     @Min(0)
     private int stock;
+    private String category = "General";
 
     public Long getId() { return id; }
     public String getName() { return name; }
@@ -38,6 +39,7 @@ public class Product {
     public void setPrice(BigDecimal price) { this.price = price; }
     public int getStock() { return stock; }
     public void setStock(int stock) { this.stock = stock; }
-
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
 }

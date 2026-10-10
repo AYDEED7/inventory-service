@@ -52,6 +52,7 @@ public class ProductController {
         product.setDescription(input.getDescription());
         product.setPrice(input.getPrice());
         product.setStock(input.getStock());
+        product.setCategory(input.getCategory());
         return repository.save(product);
     }
 

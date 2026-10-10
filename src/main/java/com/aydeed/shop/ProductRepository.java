@@ -20,7 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByStockLessThan(int threshold);
 
         @Query(value = """
-            SELECT p.id, p.name, p.description, p.price, p.stock
+            SELECT p.id, p.name, p.description, p.price, p.stock, p.category
             FROM products p
             WHERE p.search_vector @@ websearch_to_tsquery('english', :q)
               AND p.price >= :minPrice

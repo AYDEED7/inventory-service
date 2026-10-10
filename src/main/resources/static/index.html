@@ -26,14 +26,16 @@
 
   body {
     margin: 0;
-    background: var(--ground);
+    background-color: var(--ground);
+    background-image: radial-gradient(circle, #C9D1D8 1.3px, transparent 1.4px);
+    background-size: 24px 24px;
     color: var(--ink);
     font-family: var(--body);
     font-size: 17px;
     line-height: 1.5;
   }
 
-  .page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 64px; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 20px 48px; }
 
   .top { border-bottom: 6px solid var(--yellow); padding-bottom: 20px; }
   .top h1 {
@@ -54,7 +56,7 @@
     align-items: start;
   }
 
-  /* Search */
+  /* Search and filters */
   .search { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .search input[type="search"] { flex: 1 1 220px; }
   .search input[type="number"] { width: 130px; }
@@ -84,17 +86,32 @@
 
   :focus-visible { outline: 3px solid #1F5FBF; outline-offset: 2px; }
 
-  #message { min-height: 1.6em; margin: 14px 0; font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chip {
+    padding: 6px 12px;
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+
+  #message { min-height: 1.6em; margin: 14px 0 4px; font-weight: 600; }
   #message.error { color: var(--red); }
   #message.ok { color: var(--green); }
+  #count { margin: 0 0 12px; color: var(--muted); font-size: 0.95rem; }
 
-  /* Product shelf */
-  .list { display: grid; gap: 10px; }
+  /* Shelf tickets */
+  .list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+    gap: 14px;
+  }
   .empty { color: var(--muted); margin: 0; }
 
-  .row {
-    display: grid;
-    grid-template-columns: 112px minmax(0, 1fr) auto;
+  .ticket {
+    display: flex;
+    flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 6px;
@@ -102,42 +119,39 @@
   }
   .tag {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 8px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
     background: var(--yellow);
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 2.3rem;
-    line-height: 1;
   }
-  .info { padding: 14px 16px; }
-  .info h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.6rem; line-height: 1.15; }
-  .info p { margin: 4px 0 0; color: var(--muted); }
+  .price { font-family: var(--display); font-weight: 700; font-size: 2.3rem; line-height: 1; }
+  .category { font-size: 0.9rem; font-weight: 600; }
+
+  .body { flex: 1; padding: 14px 14px 8px; }
+  .body h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.55rem; line-height: 1.15; }
+  .body p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; }
+
+  .shelf { padding: 0 14px; }
+  .shelf-bar { height: 6px; overflow: hidden; border-radius: 3px; background: #DDE3E8; }
+  .shelf-fill { height: 100%; background: var(--green); }
+  .shelf-fill.low { background: var(--amber); }
+  .shelf-fill.none { background: var(--red); }
 
   .buy {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
-    padding: 14px 16px;
+    padding: 10px 14px 14px;
   }
   .stock { margin: 0; font-weight: 600; font-size: 0.95rem; }
-  .stock::before {
-    content: "";
-    display: inline-block;
-    width: 0.6em;
-    height: 0.6em;
-    margin-right: 0.45em;
-    border-radius: 50%;
-    background: currentColor;
-  }
   .stock.plenty { color: var(--green); }
   .stock.low { color: var(--amber); }
   .stock.none { color: var(--red); }
-  .controls { display: flex; gap: 8px; }
-  .controls input[type="number"] { width: 64px; }
+  .controls { display: flex; gap: 6px; }
+  .controls input[type="number"] { width: 58px; padding: 8px; }
+  .controls button { padding: 8px 12px; }
 
   /* Holds */
   .holds h2 { margin: 0 0 4px; font-family: var(--display); font-weight: 700; font-size: 1.9rem; }
@@ -166,24 +180,15 @@
   .fill.urgent { background: var(--red); }
   .time { margin: 6px 0 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .actions { display: flex; gap: 8px; }
-
   .clear { margin-top: 4px; }
+
+  .foot { margin: 40px 0 0; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
 
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
   }
   @media (min-width: 861px) {
     .holds { position: sticky; top: 16px; }
-  }
-  @media (max-width: 560px) {
-    .row { grid-template-columns: 88px minmax(0, 1fr); }
-    .buy {
-      grid-column: 1 / -1;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid var(--line);
-    }
   }
   @media (prefers-reduced-motion: reduce) {
     .fill { transition: none; }
@@ -207,7 +212,9 @@
         <button type="submit">Search</button>
       </form>
 
+      <div id="chips" class="chips"></div>
       <p id="message" role="status" aria-live="polite"></p>
+      <p id="count"></p>
       <div id="products" class="list"></div>
     </main>
 
@@ -220,11 +227,16 @@
     </aside>
   </div>
 
+  <p class="foot">Built with Spring Boot, PostgreSQL and Docker. Stock reservation, expiry and ranked full-text search all run in the backend.</p>
+
 </div>
 
 <script>
 const STORAGE_KEY = "stockroom-holds";
+const SHELF_FULL = 50;
 const holds = [];
+let currentList = [];
+let activeCategory = "All";
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -296,47 +308,112 @@ function stockInfo(stock) {
   return { text: stock + " in stock", cls: "plenty" };
 }
 
+function makeChip(name, count) {
+  const chip = el("button", "chip", name + " (" + count + ")");
+  chip.type = "button";
+  chip.setAttribute("aria-pressed", String(name === activeCategory));
+  chip.onclick = function () {
+    activeCategory = name;
+    renderChips();
+    renderGrid();
+  };
+  return chip;
+}
+
+function renderChips() {
+  const box = document.getElementById("chips");
+  box.innerHTML = "";
+  const counts = {};
+  const names = [];
+  for (let i = 0; i < currentList.length; i++) {
+    const c = currentList[i].category || "General";
+    if (counts[c] === undefined) {
+      counts[c] = 0;
+      names.push(c);
+    }
+    counts[c]++;
+  }
+  names.sort();
+  if (activeCategory !== "All" && counts[activeCategory] === undefined) {
+    activeCategory = "All";
+  }
+  if (currentList.length === 0) {
+    return;
+  }
+  box.appendChild(makeChip("All", currentList.length));
+  for (let i = 0; i < names.length; i++) {
+    box.appendChild(makeChip(names[i], counts[names[i]]));
+  }
+}
+
 function renderProducts(list) {
+  currentList = list;
+  renderChips();
+  renderGrid();
+}
+
+function renderGrid() {
   const box = document.getElementById("products");
   box.innerHTML = "";
-  if (list.length === 0) {
+  const visible = [];
+  for (let i = 0; i < currentList.length; i++) {
+    const c = currentList[i].category || "General";
+    if (activeCategory === "All" || c === activeCategory) {
+      visible.push(currentList[i]);
+    }
+  }
+  document.getElementById("count").textContent = visible.length + (visible.length === 1 ? " product" : " products");
+  if (visible.length === 0) {
     box.appendChild(el("p", "empty", "Nothing matches that search. Try a shorter word or clear the price limit."));
     return;
   }
-  for (let i = 0; i < list.length; i++) {
-    const p = list[i];
-    const info = stockInfo(p.stock);
-
-    const row = el("div", "row");
-    row.appendChild(el("div", "tag", Number(p.price).toFixed(2)));
-
-    const details = el("div", "info");
-    details.appendChild(el("h3", "", p.name));
-    details.appendChild(el("p", "", p.description || ""));
-    row.appendChild(details);
-
-    const buy = el("div", "buy");
-    buy.appendChild(el("p", "stock " + info.cls, info.text));
-
-    const controls = el("div", "controls");
-    const quantity = el("input");
-    quantity.type = "number";
-    quantity.min = 1;
-    quantity.max = p.stock;
-    quantity.value = 1;
-    quantity.setAttribute("aria-label", "Quantity of " + p.name);
-    const button = el("button", "", "Reserve");
-    button.disabled = p.stock === 0;
-    button.onclick = function () {
-      reserve(p, quantity.value);
-    };
-    controls.appendChild(quantity);
-    controls.appendChild(button);
-    buy.appendChild(controls);
-    row.appendChild(buy);
-
-    box.appendChild(row);
+  for (let i = 0; i < visible.length; i++) {
+    box.appendChild(makeTicket(visible[i]));
   }
+}
+
+function makeTicket(p) {
+  const info = stockInfo(p.stock);
+  const ticket = el("div", "ticket");
+
+  const tag = el("div", "tag");
+  tag.appendChild(el("span", "price", Number(p.price).toFixed(2)));
+  tag.appendChild(el("span", "category", p.category || "General"));
+  ticket.appendChild(tag);
+
+  const body = el("div", "body");
+  body.appendChild(el("h3", "", p.name));
+  body.appendChild(el("p", "", p.description || ""));
+  ticket.appendChild(body);
+
+  const shelf = el("div", "shelf");
+  const bar = el("div", "shelf-bar");
+  const fill = el("div", "shelf-fill " + (info.cls === "plenty" ? "" : info.cls));
+  fill.style.width = Math.min(100, p.stock / SHELF_FULL * 100) + "%";
+  bar.appendChild(fill);
+  shelf.appendChild(bar);
+  ticket.appendChild(shelf);
+
+  const buy = el("div", "buy");
+  buy.appendChild(el("p", "stock " + info.cls, info.text));
+  const controls = el("div", "controls");
+  const quantity = el("input");
+  quantity.type = "number";
+  quantity.min = 1;
+  quantity.max = p.stock;
+  quantity.value = 1;
+  quantity.setAttribute("aria-label", "Quantity of " + p.name);
+  const button = el("button", "", "Reserve");
+  button.disabled = p.stock === 0;
+  button.onclick = function () {
+    reserve(p, quantity.value);
+  };
+  controls.appendChild(quantity);
+  controls.appendChild(button);
+  buy.appendChild(controls);
+  ticket.appendChild(buy);
+
+  return ticket;
 }
 
 async function reserve(product, quantityText) {
