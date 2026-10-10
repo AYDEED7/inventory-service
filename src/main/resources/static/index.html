@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventory Shop</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 0 10px; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .card { border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+  .card h3, .card p { margin: 4px 0; }
+  #message { min-height: 24px; font-weight: bold; }
+  .error { color: #b00020; }
+  .ok { color: #1b6e2d; }
+  input[type=number] { width: 80px; }
+</style>
+</head>
+<body>
+
+<h1>Inventory Shop</h1>
+
+<div class="bar">
+  <input id="q" placeholder="Search (e.g. keyboard)">
+  <input id="maxPrice" type="number" placeholder="Max price">
+  <label><input id="inStock" type="checkbox"> In stock only</label>
+  <button onclick="search()">Search</button>
+</div>
+
+<p id="message"></p>
+<div id="products"></div>
+
+<h2>My orders</h2>
+<button onclick="refreshOrders()">Refresh order status</button>
+<div id="orders"></div>
+
+<script>
+const orders = [];
+
+function showMessage(text, isError) {
+  const box = document.getElementById("message");
+  box.textContent = text;
+  box.className = isError ? "error" : "ok";
+}
+
+async function request(url, options) {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  let data = null;
+  if (text !== "") {
+    data = JSON.parse(text);
+  }
+  if (!response.ok) {
+    let message = "Error " + response.status;
+    if (data !== null && data.message) {
+      message = data.message;
+    }
+    throw new Error(message);
+  }
+  return data;
+}
+
+async function search() {
+  const q = document.getElementById("q").value.trim();
+  const maxPrice = document.getElementById("maxPrice").value;
+  const inStock = document.getElementById("inStock").checked;
+  let url = "/products";
+  if (q !== "") {
+    url = "/products/search?q=" + encodeURIComponent(q);
+    if (maxPrice !== "") {
+      url = url + "&maxPrice=" + maxPrice;
+    }
+    if (inStock) {
+      url = url + "&inStock=true";
+    }
+  }
+  try {
+    const list = await request(url);
+    renderProducts(list);
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+function renderProducts(list) {
+  const box = document.getElementById("products");
+  box.innerHTML = "";
+  if (list.length === 0) {
+    box.textContent = "No products found.";
+    return;
+  }
+  for (let i = 0; i < list.length; i++) {
+    const p = list[i];
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const title = document.createElement("h3");
+    title.textContent = p.name;
+    const description = document.createElement("p");
+    description.textContent = p.description || "";
+    const info = document.createElement("p");
+    info.textContent = "Price: " + p.price + " | In stock: " + p.stock;
+
+    const quantity = document.createElement("input");
+    quantity.type = "number";
+    quantity.min = 1;
+    quantity.value = 1;
+    const button = document.createElement("button");
+    button.textContent = "Reserve";
+    button.onclick = function () {
+      reserve(p.id, quantity.value);
+    };
+
+    card.appendChild(title);
+    card.appendChild(description);
+    card.appendChild(info);
+    card.appendChild(quantity);
+    card.appendChild(button);
+    box.appendChild(card);
+  }
+}
+
+async function reserve(productId, quantity) {
+  try {
+    const order = await request("/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: productId, quantity: Number(quantity) })
+    });
+    orders.push(order);
+    renderOrders();
+    showMessage("Reserved! Pay before " + new Date(order.expiresAt).toLocaleTimeString(), false);
+    search();
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function changeOrder(id, action) {
+  try {
+    const updated = await request("/orders/" + id + "/" + action, { method: "POST" });
+    replaceOrder(updated);
+    renderOrders();
+    showMessage("Order " + id + " is now " + updated.status, false);
+    search();
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+function replaceOrder(updated) {
+  for (let i = 0; i < orders.length; i++) {
+    if (orders[i].id === updated.id) {
+      orders[i] = updated;
+    }
+  }
+}
+
+async function refreshOrders() {
+  try {
+    for (let i = 0; i < orders.length; i++) {
+      orders[i] = await request("/orders/" + orders[i].id);
+    }
+    renderOrders();
+    search();
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+function renderOrders() {
+  const box = document.getElementById("orders");
+  box.innerHTML = "";
+  for (let i = 0; i < orders.length; i++) {
+    const o = orders[i];
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const text = document.createElement("p");
+    text.textContent = "Order " + o.id + " | product " + o.productId + " x" + o.quantity
+        + " | " + o.status + " | expires " + new Date(o.expiresAt).toLocaleTimeString();
+    card.appendChild(text);
+
+    if (o.status === "PENDING") {
+      const pay = document.createElement("button");
+      pay.textContent = "Pay";
+      pay.onclick = function () { changeOrder(o.id, "pay"); };
+      const cancel = document.createElement("button");
+      cancel.textContent = "Cancel";
+      cancel.onclick = function () { changeOrder(o.id, "cancel"); };
+      card.appendChild(pay);
+      card.appendChild(cancel);
+    }
+    box.appendChild(card);
+  }
+}
+
+search();
+</script>
+</body>
+</html>
