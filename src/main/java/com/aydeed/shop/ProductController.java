@@ -1,6 +1,8 @@
 package com.aydeed.shop;
 
 import jakarta.validation.Valid;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -65,5 +67,14 @@ public class ProductController {
     @GetMapping("/low-stock")
     public List<Product> lowStock(@RequestParam(defaultValue = "5") int threshold) {
         return repository.findByStockLessThan(threshold);
+    }
+
+    @GetMapping("/search")
+    public List<Product> search(@RequestParam String q,
+                                @RequestParam(defaultValue = "0") BigDecimal minPrice,
+                                @RequestParam(defaultValue = "1000000") BigDecimal maxPrice,
+                                @RequestParam(defaultValue = "false") boolean inStock,
+                                @RequestParam(defaultValue = "20") int limit) {
+        return repository.search(q, minPrice, maxPrice, inStock, limit);
     }
 }
