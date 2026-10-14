@@ -18,9 +18,19 @@
     --green: #1C7C54;
     --amber: #8A5A00;
     --red: #B42318;
+    --accent: #52606D;
+    --panel: #E1E6EA;
     --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
     --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
+
+  /* One color pair per category: accent for the icon, panel for the background */
+  .cat-tech { --accent: #1D5FD1; --panel: #DCE8FB; }
+  .cat-home-office { --accent: #6B3FB8; --panel: #E8DFF7; }
+  .cat-kitchen { --accent: #B4430C; --panel: #FBE2D3; }
+  .cat-outdoors { --accent: #1C7C54; --panel: #D8EFE3; }
+  .cat-travel { --accent: #0B7285; --panel: #D3EDF1; }
+  .cat-stationery { --accent: #A3197F; --panel: #F6DCEF; }
 
   * { box-sizing: border-box; }
 
@@ -88,6 +98,9 @@
 
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
     padding: 6px 12px;
     background: var(--surface);
     color: var(--ink);
@@ -95,6 +108,8 @@
     font-size: 0.95rem;
   }
   .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .chip[aria-pressed="true"] .dot { box-shadow: 0 0 0 2px #fff; }
 
   #message { min-height: 1.6em; margin: 14px 0 4px; font-weight: 600; }
   #message.error { color: var(--red); }
@@ -105,7 +120,7 @@
   .list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
-    gap: 14px;
+    gap: 16px;
   }
   .empty { color: var(--muted); margin: 0; }
 
@@ -114,19 +129,56 @@
     flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
   }
-  .tag {
+
+  .panel {
+    position: relative;
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 10px 14px;
-    background: var(--yellow);
+    align-items: center;
+    justify-content: center;
+    height: 124px;
+    background: var(--panel);
+    color: var(--accent);
   }
-  .price { font-family: var(--display); font-weight: 700; font-size: 2.3rem; line-height: 1; }
-  .category { font-size: 0.9rem; font-weight: 600; }
+  .panel svg { width: 66px; height: 66px; }
+  .category {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .tag {
+    position: absolute;
+    left: 0;
+    bottom: 12px;
+    padding: 5px 16px 5px 28px;
+    background: var(--yellow);
+    border-radius: 0 6px 6px 0;
+    color: var(--ink);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.9rem;
+    line-height: 1.1;
+  }
+  .tag::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    margin-top: -4.5px;
+    border-radius: 50%;
+    background: var(--panel);
+    box-shadow: inset 0 0 0 1.5px rgba(22, 32, 43, 0.35);
+  }
+
+  .soldout .panel { filter: grayscale(1); opacity: 0.75; }
+  .soldout .tag { background: var(--line); }
 
   .body { flex: 1; padding: 14px 14px 8px; }
   .body h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.55rem; line-height: 1.15; }
@@ -153,35 +205,79 @@
   .controls input[type="number"] { width: 58px; padding: 8px; }
   .controls button { padding: 8px 12px; }
 
-  /* Holds */
+  /* Holds, drawn as tear-off slips */
   .holds h2 { margin: 0 0 4px; font-family: var(--display); font-weight: 700; font-size: 1.9rem; }
   .holds-note { margin: 0 0 14px; color: var(--muted); font-size: 0.95rem; }
   #holdsEmpty { color: var(--muted); margin: 0; }
 
-  .hold {
-    margin-bottom: 10px;
-    padding: 12px 14px;
+  .slip {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    margin-bottom: 12px;
+    overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-left-width: 6px;
-    border-radius: 4px;
+    border-radius: 8px;
   }
-  .hold.pending { border-left-color: var(--yellow); }
-  .hold.paid { border-left-color: var(--green); }
-  .hold.cancelled { border-left-color: #7B8794; }
-  .hold.expired { border-left-color: var(--red); }
+  .slip.fresh { animation: slip-in 0.35s ease-out; }
+  @keyframes slip-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: none; }
+  }
 
+  .stub {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background: #F4F6F8;
+    border-right: 2px dashed var(--line);
+  }
+  .slip-body { padding: 12px 14px; }
   .hold-title { margin: 0; font-weight: 600; }
-  .hold-state { margin: 2px 0 0; color: var(--muted); font-size: 0.95rem; }
   .hold-id { margin: 0; color: var(--muted); font-size: 0.85rem; }
+  .hold-state { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
+  .actions { display: flex; gap: 8px; margin-top: 10px; }
 
-  .meter { height: 8px; margin-top: 10px; overflow: hidden; border-radius: 4px; background: #DDE3E8; }
-  .fill { width: 100%; height: 100%; background: var(--ink); transition: width 1s linear; }
-  .fill.urgent { background: var(--red); }
-  .time { margin: 6px 0 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .actions { display: flex; gap: 8px; }
+  .ring { position: relative; width: 62px; height: 62px; }
+  .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ring-track { fill: none; stroke: #DDE3E8; stroke-width: 5; }
+  .ring-fg {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+  }
+  .ring-fg.urgent { stroke: var(--red); }
+  .ring-time {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .disc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    border: 5px solid currentColor;
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .disc svg { width: 28px; height: 28px; }
+  .paid .disc { color: var(--green); }
+  .cancelled .disc { color: #7B8794; }
+  .expired .disc { color: var(--red); }
+
   .clear { margin-top: 4px; }
-
   .foot { margin: 40px 0 0; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
 
   @media (max-width: 860px) {
@@ -191,7 +287,8 @@
     .holds { position: sticky; top: 16px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .fill { transition: none; }
+    .ring-fg { transition: none; }
+    .slip.fresh { animation: none; }
   }
 </style>
 </head>
@@ -234,9 +331,32 @@
 <script>
 const STORAGE_KEY = "stockroom-holds";
 const SHELF_FULL = 50;
+const RING = 175.9;
 const holds = [];
 let currentList = [];
 let activeCategory = "All";
+
+function svg(inner) {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
+      + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+}
+
+const ICONS = {
+  "tech": svg('<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>'),
+  "home-office": svg('<path d="M8 21h8"/><path d="M12 21V12"/><path d="M12 12l5-7"/><path d="M14 4l5 4-3 3-4-4z"/>'),
+  "kitchen": svg('<path d="M5 8h11v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><path d="M16 10h2a2 2 0 0 1 0 5h-2"/><path d="M8 3v2M12 3v2"/>'),
+  "outdoors": svg('<path d="M3 20l6-11 4 7 3-4 5 8z"/>'),
+  "travel": svg('<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>'),
+  "stationery": svg('<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>'),
+  "general": svg('<path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>'),
+  "check": svg('<path d="M5 12l4 4 10-10"/>'),
+  "cross": svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+  "clock": svg('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>')
+};
+
+function slug(category) {
+  return (category || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -309,8 +429,12 @@ function stockInfo(stock) {
 }
 
 function makeChip(name, count) {
-  const chip = el("button", "chip", name + " (" + count + ")");
+  const chip = el("button", "chip");
   chip.type = "button";
+  if (name !== "All") {
+    chip.appendChild(el("span", "dot cat-" + slug(name)));
+  }
+  chip.appendChild(document.createTextNode(name + " (" + count + ")"));
   chip.setAttribute("aria-pressed", String(name === activeCategory));
   chip.onclick = function () {
     activeCategory = name;
@@ -374,12 +498,17 @@ function renderGrid() {
 
 function makeTicket(p) {
   const info = stockInfo(p.stock);
-  const ticket = el("div", "ticket");
+  const category = p.category || "General";
+  const key = slug(category);
+  const ticket = el("div", "ticket cat-" + key + (p.stock === 0 ? " soldout" : ""));
 
-  const tag = el("div", "tag");
-  tag.appendChild(el("span", "price", Number(p.price).toFixed(2)));
-  tag.appendChild(el("span", "category", p.category || "General"));
-  ticket.appendChild(tag);
+  const panel = el("div", "panel");
+  const icon = el("div", "icon");
+  icon.innerHTML = ICONS[key] || ICONS["general"];
+  panel.appendChild(icon);
+  panel.appendChild(el("span", "category", category));
+  panel.appendChild(el("span", "tag", Number(p.price).toFixed(2)));
+  ticket.appendChild(panel);
 
   const body = el("div", "body");
   body.appendChild(el("h3", "", p.name));
@@ -430,6 +559,7 @@ async function reserve(product, quantityText) {
     });
     order.name = product.name;
     order.lastCheck = 0;
+    order.fresh = true;
     holds.push(order);
     saveHolds();
     renderHolds();
@@ -479,9 +609,6 @@ async function loadHolds() {
 }
 
 function stateText(status) {
-  if (status === "PENDING") {
-    return "Held for you";
-  }
   if (status === "PAID") {
     return "Paid";
   }
@@ -504,18 +631,32 @@ function renderHolds() {
   document.getElementById("holdsEmpty").hidden = holds.length > 0;
   for (let i = holds.length - 1; i >= 0; i--) {
     const h = holds[i];
-    const card = el("div", "hold " + h.status.toLowerCase());
-    card.appendChild(el("p", "hold-title", h.quantity + " x " + h.name));
-    card.appendChild(el("p", "hold-id", "Order " + h.id));
-    card.appendChild(el("p", "hold-state", stateText(h.status)));
+    const slip = el("div", "slip " + h.status.toLowerCase());
+    if (h.fresh) {
+      slip.classList.add("fresh");
+      h.fresh = false;
+    }
+
+    const stub = el("div", "stub");
+    const body = el("div", "slip-body");
+    body.appendChild(el("p", "hold-title", h.quantity + " x " + h.name));
+    body.appendChild(el("p", "hold-id", "Order " + h.id));
 
     if (h.status === "PENDING") {
-      const meter = el("div", "meter");
-      const fill = el("div", "fill");
-      meter.appendChild(fill);
-      const time = el("p", "time", "");
-      h.fillEl = fill;
+      const ring = el("div", "ring");
+      ring.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true">'
+          + '<circle class="ring-track" cx="32" cy="32" r="28"/>'
+          + '<circle class="ring-fg" cx="32" cy="32" r="28" transform="rotate(-90 32 32)" '
+          + 'stroke-dasharray="' + RING + '" stroke-dashoffset="0"/></svg>';
+      const time = el("span", "ring-time", "");
+      ring.appendChild(time);
+      stub.appendChild(ring);
+      h.ringEl = ring.querySelector(".ring-fg");
       h.timeEl = time;
+
+      const note = el("p", "hold-state", "Pay before the timer ends.");
+      h.noteEl = note;
+      body.appendChild(note);
 
       const actions = el("div", "actions");
       const pay = el("button", "", "Pay");
@@ -528,12 +669,23 @@ function renderHolds() {
       };
       actions.appendChild(pay);
       actions.appendChild(cancel);
-
-      card.appendChild(meter);
-      card.appendChild(time);
-      card.appendChild(actions);
+      body.appendChild(actions);
+    } else {
+      const disc = el("div", "disc");
+      let iconName = "clock";
+      if (h.status === "PAID") {
+        iconName = "check";
+      } else if (h.status === "CANCELLED") {
+        iconName = "cross";
+      }
+      disc.innerHTML = ICONS[iconName];
+      stub.appendChild(disc);
+      body.appendChild(el("p", "hold-state", stateText(h.status)));
     }
-    box.appendChild(card);
+
+    slip.appendChild(stub);
+    slip.appendChild(body);
+    box.appendChild(slip);
   }
   tick();
 }
@@ -588,14 +740,15 @@ function tick() {
     const total = new Date(h.expiresAt) - new Date(h.createdAt);
     const left = new Date(h.expiresAt) - now;
     if (left > 0) {
-      h.timeEl.textContent = formatTime(left) + " left to pay";
-      h.fillEl.style.width = (left / total * 100) + "%";
+      h.timeEl.textContent = formatTime(left);
+      h.ringEl.style.strokeDashoffset = RING * (1 - left / total);
       if (left < 60000) {
-        h.fillEl.classList.add("urgent");
+        h.ringEl.classList.add("urgent");
       }
     } else {
-      h.fillEl.style.width = "0%";
-      h.timeEl.textContent = "Time is up. Checking with the server...";
+      h.timeEl.textContent = "0:00";
+      h.ringEl.style.strokeDashoffset = RING;
+      h.noteEl.textContent = "Time is up. Checking with the server...";
       if (now - h.lastCheck > 3000) {
         h.lastCheck = now;
         syncHold(h);
