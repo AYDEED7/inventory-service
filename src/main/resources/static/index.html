@@ -10,34 +10,35 @@
 <style>
   :root {
     --ink: #16202B;
-    --ground: #E8ECEF;
+    --brand: #2F3BD6;
+    --ground: #EEF0FF;
     --surface: #FFFFFF;
     --line: #C5CED6;
-    --muted: #52606D;
+    --muted: #4B5568;
     --yellow: #F5C400;
     --green: #1C7C54;
     --amber: #8A5A00;
     --red: #B42318;
-    --accent: #52606D;
-    --panel: #E1E6EA;
+    --accent: #5B6B7B;
+    --panel: #5B6B7B;
     --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
     --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 
-  /* One color pair per category: accent for the icon, panel for the background */
-  .cat-tech { --accent: #1D5FD1; --panel: #DCE8FB; }
-  .cat-home-office { --accent: #6B3FB8; --panel: #E8DFF7; }
-  .cat-kitchen { --accent: #B4430C; --panel: #FBE2D3; }
-  .cat-outdoors { --accent: #1C7C54; --panel: #D8EFE3; }
-  .cat-travel { --accent: #0B7285; --panel: #D3EDF1; }
-  .cat-stationery { --accent: #A3197F; --panel: #F6DCEF; }
+  /* One colour per category */
+  .cat-tech { --accent: #2F6BFF; --panel: #2F6BFF; }
+  .cat-home-office { --accent: #7B4DFF; --panel: #7B4DFF; }
+  .cat-kitchen { --accent: #FF6B2C; --panel: #FF6B2C; }
+  .cat-outdoors { --accent: #12A150; --panel: #12A150; }
+  .cat-travel { --accent: #00A6C8; --panel: #00A6C8; }
+  .cat-stationery { --accent: #E8349F; --panel: #E8349F; }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
     background-color: var(--ground);
-    background-image: radial-gradient(circle, #C9D1D8 1.3px, transparent 1.4px);
+    background-image: radial-gradient(circle, #C6CCFA 1.3px, transparent 1.4px);
     background-size: 24px 24px;
     color: var(--ink);
     font-family: var(--body);
@@ -47,16 +48,36 @@
 
   .page { max-width: 1120px; margin: 0 auto; padding: 32px 20px 48px; }
 
-  .top { border-bottom: 6px solid var(--yellow); padding-bottom: 20px; }
+  /* Header band with a stripe in the category colours */
+  .top {
+    position: relative;
+    overflow: hidden;
+    padding: 28px 28px 36px;
+    background: var(--brand);
+    border-radius: 12px;
+  }
+  .top::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8px;
+    background: linear-gradient(90deg,
+      #2F6BFF 0 14.28%, #7B4DFF 14.28% 28.57%, #E8349F 28.57% 42.85%,
+      #FF6B2C 42.85% 57.14%, #F5C400 57.14% 71.42%, #12A150 71.42% 85.71%,
+      #00A6C8 85.71% 100%);
+  }
   .top h1 {
     margin: 0;
+    color: #fff;
     font-family: var(--display);
     font-weight: 700;
     font-size: clamp(2.8rem, 8vw, 4.6rem);
     line-height: 0.95;
     letter-spacing: -0.01em;
   }
-  .lede { max-width: 46ch; margin: 12px 0 0; color: var(--muted); font-size: 1.1rem; }
+  .lede { max-width: 46ch; margin: 12px 0 0; color: #D7DBFF; font-size: 1.1rem; }
 
   .layout {
     display: grid;
@@ -83,15 +104,16 @@
 
   button {
     padding: 10px 16px;
-    border: 2px solid var(--ink);
+    border: 2px solid var(--brand);
     border-radius: 4px;
-    background: var(--ink);
+    background: var(--brand);
     color: #fff;
     font: inherit;
     font-weight: 600;
     cursor: pointer;
   }
-  button.secondary { background: transparent; color: var(--ink); }
+  button.secondary { background: transparent; color: var(--brand); }
+  button:not(:disabled):hover { filter: brightness(1.12); }
   button:disabled { opacity: 0.45; cursor: not-allowed; }
 
   :focus-visible { outline: 3px solid #1F5FBF; outline-offset: 2px; }
@@ -103,11 +125,12 @@
     gap: 7px;
     padding: 6px 12px;
     background: var(--surface);
+    border-color: var(--line);
     color: var(--ink);
     font-weight: 500;
     font-size: 0.95rem;
   }
-  .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
   .chip[aria-pressed="true"] .dot { box-shadow: 0 0 0 2px #fff; }
 
@@ -129,6 +152,7 @@
     flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--line);
+    border-bottom: 4px solid var(--panel);
     border-radius: 8px;
     overflow: hidden;
   }
@@ -140,13 +164,17 @@
     justify-content: center;
     height: 124px;
     background: var(--panel);
-    color: var(--accent);
+    color: #fff;
   }
-  .panel svg { width: 66px; height: 66px; }
+  .panel svg { width: 66px; height: 66px; stroke-width: 1.8; }
   .category {
     position: absolute;
     top: 10px;
     right: 12px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
     font-size: 0.85rem;
     font-weight: 600;
   }
@@ -177,6 +205,7 @@
     box-shadow: inset 0 0 0 1.5px rgba(22, 32, 43, 0.35);
   }
 
+  .soldout { border-bottom-color: var(--line); }
   .soldout .panel { filter: grayscale(1); opacity: 0.75; }
   .soldout .tag { background: var(--line); }
 
@@ -206,7 +235,7 @@
   .controls button { padding: 8px 12px; }
 
   /* Holds, drawn as tear-off slips */
-  .holds h2 { margin: 0 0 4px; font-family: var(--display); font-weight: 700; font-size: 1.9rem; }
+  .holds h2 { margin: 0 0 4px; color: var(--brand); font-family: var(--display); font-weight: 700; font-size: 1.9rem; }
   .holds-note { margin: 0 0 14px; color: var(--muted); font-size: 0.95rem; }
   #holdsEmpty { color: var(--muted); margin: 0; }
 
@@ -216,7 +245,7 @@
     margin-bottom: 12px;
     overflow: hidden;
     background: var(--surface);
-    border: 1px solid var(--line);
+    border: 1px solid #B9C0F5;
     border-radius: 8px;
   }
   .slip.fresh { animation: slip-in 0.35s ease-out; }
@@ -230,8 +259,8 @@
     align-items: center;
     justify-content: center;
     padding: 10px;
-    background: #F4F6F8;
-    border-right: 2px dashed var(--line);
+    background: #E9ECFF;
+    border-right: 2px dashed #B9C0F5;
   }
   .slip-body { padding: 12px 14px; }
   .hold-title { margin: 0; font-weight: 600; }
@@ -241,10 +270,10 @@
 
   .ring { position: relative; width: 62px; height: 62px; }
   .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .ring-track { fill: none; stroke: #DDE3E8; stroke-width: 5; }
+  .ring-track { fill: none; stroke: #CDD3F8; stroke-width: 5; }
   .ring-fg {
     fill: none;
-    stroke: var(--ink);
+    stroke: var(--brand);
     stroke-width: 5;
     stroke-linecap: round;
     transition: stroke-dashoffset 1s linear;
