@@ -9,36 +9,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #16202B;
-    --brand: #2F3BD6;
-    --ground: #EEF0FF;
+    --ink: #1B2033;
+    --brand: #27306B;
+    --ground: #F1F2F8;
     --surface: #FFFFFF;
-    --line: #C5CED6;
-    --muted: #4B5568;
-    --yellow: #F5C400;
+    --line: #D2D6E4;
+    --muted: #55607A;
+    --gold: #F2C94C;
     --green: #1C7C54;
     --amber: #8A5A00;
     --red: #B42318;
-    --accent: #5B6B7B;
-    --panel: #5B6B7B;
+    --accent: #6B7390;
+    --panel: #6B7390;
     --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
     --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 
   /* One colour per category */
-  .cat-tech { --accent: #2F6BFF; --panel: #2F6BFF; }
-  .cat-home-office { --accent: #7B4DFF; --panel: #7B4DFF; }
-  .cat-kitchen { --accent: #FF6B2C; --panel: #FF6B2C; }
-  .cat-outdoors { --accent: #12A150; --panel: #12A150; }
-  .cat-travel { --accent: #00A6C8; --panel: #00A6C8; }
-  .cat-stationery { --accent: #E8349F; --panel: #E8349F; }
+  .cat-tech { --accent: #3F6FB8; --panel: #3F6FB8; }
+  .cat-home-office { --accent: #7B63B5; --panel: #7B63B5; }
+  .cat-kitchen { --accent: #E06B3C; --panel: #E06B3C; }
+  .cat-outdoors { --accent: #3E8E6A; --panel: #3E8E6A; }
+  .cat-travel { --accent: #2A8FA3; --panel: #2A8FA3; }
+  .cat-stationery { --accent: #B24F8F; --panel: #B24F8F; }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
     background-color: var(--ground);
-    background-image: radial-gradient(circle, #C6CCFA 1.3px, transparent 1.4px);
+    background-image: radial-gradient(circle, #D9DCEC 1.3px, transparent 1.4px);
     background-size: 24px 24px;
     color: var(--ink);
     font-family: var(--body);
@@ -64,9 +64,8 @@
     bottom: 0;
     height: 8px;
     background: linear-gradient(90deg,
-      #2F6BFF 0 14.28%, #7B4DFF 14.28% 28.57%, #E8349F 28.57% 42.85%,
-      #FF6B2C 42.85% 57.14%, #F5C400 57.14% 71.42%, #12A150 71.42% 85.71%,
-      #00A6C8 85.71% 100%);
+      #3F6FB8 0 16.66%, #7B63B5 16.66% 33.33%, #B24F8F 33.33% 50%,
+      #E06B3C 50% 66.66%, #F2C94C 66.66% 83.33%, #3E8E6A 83.33% 100%);
   }
   .top h1 {
     margin: 0;
@@ -77,7 +76,7 @@
     line-height: 0.95;
     letter-spacing: -0.01em;
   }
-  .lede { max-width: 46ch; margin: 12px 0 0; color: #D7DBFF; font-size: 1.1rem; }
+  .lede { max-width: 46ch; margin: 12px 0 0; color: #CBD0EE; font-size: 1.1rem; }
 
   .layout {
     display: grid;
@@ -95,7 +94,7 @@
 
   input[type="search"], input[type="number"] {
     padding: 11px 12px;
-    border: 1px solid #9AA7B3;
+    border: 1px solid #A9B0C8;
     border-radius: 4px;
     background: var(--surface);
     color: var(--ink);
@@ -113,10 +112,10 @@
     cursor: pointer;
   }
   button.secondary { background: transparent; color: var(--brand); }
-  button:not(:disabled):hover { filter: brightness(1.12); }
+  button:not(:disabled):hover { filter: brightness(1.15); }
   button:disabled { opacity: 0.45; cursor: not-allowed; }
 
-  :focus-visible { outline: 3px solid #1F5FBF; outline-offset: 2px; }
+  :focus-visible { outline: 3px solid #3F6FB8; outline-offset: 2px; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .chip {
@@ -163,9 +162,21 @@
     align-items: center;
     justify-content: center;
     height: 124px;
+    overflow: hidden;
     background: var(--panel);
     color: #fff;
   }
+  .panel::before {
+    content: "";
+    position: absolute;
+    top: -44px;
+    right: -34px;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .icon { position: relative; }
   .panel svg { width: 66px; height: 66px; stroke-width: 1.8; }
   .category {
     position: absolute;
@@ -184,7 +195,7 @@
     left: 0;
     bottom: 12px;
     padding: 5px 16px 5px 28px;
-    background: var(--yellow);
+    background: var(--gold);
     border-radius: 0 6px 6px 0;
     color: var(--ink);
     font-family: var(--display);
@@ -202,7 +213,7 @@
     margin-top: -4.5px;
     border-radius: 50%;
     background: var(--panel);
-    box-shadow: inset 0 0 0 1.5px rgba(22, 32, 43, 0.35);
+    box-shadow: inset 0 0 0 1.5px rgba(27, 32, 51, 0.35);
   }
 
   .soldout { border-bottom-color: var(--line); }
@@ -214,7 +225,7 @@
   .body p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; }
 
   .shelf { padding: 0 14px; }
-  .shelf-bar { height: 6px; overflow: hidden; border-radius: 3px; background: #DDE3E8; }
+  .shelf-bar { height: 6px; overflow: hidden; border-radius: 3px; background: #E1E4F0; }
   .shelf-fill { height: 100%; background: var(--green); }
   .shelf-fill.low { background: var(--amber); }
   .shelf-fill.none { background: var(--red); }
@@ -245,7 +256,7 @@
     margin-bottom: 12px;
     overflow: hidden;
     background: var(--surface);
-    border: 1px solid #B9C0F5;
+    border: 1px solid #C8CCE6;
     border-radius: 8px;
   }
   .slip.fresh { animation: slip-in 0.35s ease-out; }
@@ -259,8 +270,8 @@
     align-items: center;
     justify-content: center;
     padding: 10px;
-    background: #E9ECFF;
-    border-right: 2px dashed #B9C0F5;
+    background: #ECEEF8;
+    border-right: 2px dashed #C8CCE6;
   }
   .slip-body { padding: 12px 14px; }
   .hold-title { margin: 0; font-weight: 600; }
@@ -270,7 +281,7 @@
 
   .ring { position: relative; width: 62px; height: 62px; }
   .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .ring-track { fill: none; stroke: #CDD3F8; stroke-width: 5; }
+  .ring-track { fill: none; stroke: #D8DBEE; stroke-width: 5; }
   .ring-fg {
     fill: none;
     stroke: var(--brand);
