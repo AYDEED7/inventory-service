@@ -126,6 +126,7 @@
     color: var(--text);
   }
   button:not(:disabled):hover { filter: brightness(1.08); }
+  button:not(.secondary):not(.chip) { background: var(--sand); border-color: var(--sand); }
   button:disabled { opacity: 0.45; cursor: not-allowed; }
 
   :focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
@@ -175,7 +176,7 @@
     justify-content: center;
     height: 124px;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(var(--rgb), 0.55), rgba(var(--rgb), 0.18));
+    background: linear-gradient(135deg, rgba(var(--rgb), 0.45), rgba(var(--rgb), 0.14));
     border-bottom: 1px solid var(--glass-border);
     color: #fff;
   }
@@ -330,6 +331,7 @@
 
   .clear { margin-top: 4px; }
   .foot { margin: 40px 0 0; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
+  .foot a { color: var(--text); }
 
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
@@ -375,7 +377,7 @@
     </aside>
   </div>
 
-  <p class="foot">Built with Spring Boot, PostgreSQL and Docker. Stock reservation, expiry and ranked full-text search all run in the backend.</p>
+  <p class="foot">Built with Spring Boot, PostgreSQL and Docker. Stock reservation, expiry and ranked full-text search all run in the backend. <a href="https://github.com/AYDEED7/inventory-service">View the source on GitHub.</a></p>
 
 </div>
 
