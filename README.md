@@ -6,12 +6,12 @@ A backend service with a small web page for reserving stock. When a customer sta
 
 ## What it does
 
-- **Product catalogue** with validation, categories and full create, read, update, delete
+- **Product catalogue** with categories, validation, and full create, read, update, delete
 - **Time-limited stock reservation:** creating an order takes stock immediately, and a scheduled job releases it when the hold expires
 - **Pay and cancel** endpoints, with safe status changes (an order can't be both paid and expired)
 - **Low-stock alerts:** an endpoint listing products under a threshold, plus a warning in the logs
 - **Ranked full-text search** with price and in-stock filters
-- **A demo web page** with search, category filters and live countdown timers
+- **Demo web page** with search, category filters, stock levels per product, and live countdown rings for each hold
 
 ## Tech stack
 
@@ -23,7 +23,7 @@ A backend service with a small web page for reserving stock. When a customer sta
 | Migrations | Flyway |
 | Tests | JUnit |
 | Packaging | Docker and Docker Compose |
-| Frontend | Plain HTML, CSS and JavaScript |
+| Frontend | Plain HTML, CSS and JavaScript, served by Spring |
 
 ## Run it
 
@@ -35,9 +35,11 @@ cd inventory-service
 docker compose up -d --build
 ```
 
-Then open http://localhost:8081/. Stop it with `docker compose stop`.
+Then open http://localhost:8081/. The first build takes a few minutes. Stop everything with `docker compose stop`, and start it again with `docker compose up -d`. After changing code, rebuild with `docker compose up -d --build`.
 
-To run the app from your editor instead, start only the database with `docker compose up -d db` and run `ShopApplication`, or use `./mvnw spring-boot:run` (`.\mvnw.cmd spring-boot:run` on Windows).
+**Run from your editor instead.** Start only the database with `docker compose up -d db`, then run `ShopApplication`, or use `./mvnw spring-boot:run` (`.\mvnw.cmd spring-boot:run` on Windows). Stop the Docker `app` container first, since both use port 8081.
+
+**Run the tests.** The database must be running (`docker compose up -d db`), then run `./mvnw test`.
 
 ## API
 
@@ -54,6 +56,8 @@ To run the app from your editor instead, start only the database with `docker co
 | GET | `/orders/{id}` | Get an order |
 | POST | `/orders/{id}/pay` | Confirm a pending order |
 | POST | `/orders/{id}/cancel` | Cancel a pending order and release the stock |
+
+A product looks like `{"name": "Mug", "description": "Blue ceramic mug", "price": 9.99, "stock": 50, "category": "Kitchen"}`. The category is optional and defaults to `General`.
 
 Errors use normal status codes: 400 for invalid input, 404 for a missing product or order, and 409 when there isn't enough stock or an order is no longer pending.
 
@@ -73,11 +77,20 @@ PostgreSQL locks the row while it runs, so simultaneous buyers are handled one a
 
 **Expiry.** A scheduled job runs every 10 seconds and expires pending orders past their deadline. The hold length defaults to 10 minutes and can be changed with `shop.reservation-minutes`.
 
-**Versioned schema.** Tables are created by Flyway migrations (`V1` to `V4`) and Hibernate only validates them (`ddl-auto=validate`), so the database structure is reviewed in Git like code.
+**Versioned schema.** Tables are created by Flyway migrations and Hibernate only validates them (`ddl-auto=validate`), so the database structure is reviewed in Git like code:
+
+| Migration | What it does |
+|---|---|
+| `V1` | Products table |
+| `V2` | Orders table and expiry index |
+| `V3` | Full-text search column and GIN index |
+| `V4` | Product categories and sample products |
+
+**One image, any environment.** The app reads its database settings from environment variables, so the same Docker image runs on a laptop or a server. Docker Compose starts the database first and waits for its health check before starting the app.
 
 ## Results
 
-**Concurrency test.** `ConcurrencyTest` starts 50 threads that all try to buy 1 item of a product with only 10 in stock. It asserts that exactly 10 orders succeed, 40 are rejected, and the final stock is 0, never negative. Run it with `./mvnw test` while the database is running.
+**Concurrency test.** `ConcurrencyTest` starts 50 threads that all try to buy 1 item of a product with only 10 in stock. It asserts that exactly 10 orders succeed, 40 are rejected, and the final stock is 0, never negative.
 
 **Search benchmark.** On 100,000 generated products, searching for a rare word (local PostgreSQL 16 in Docker, measured with `EXPLAIN ANALYZE`):
 
@@ -88,8 +101,21 @@ PostgreSQL locks the row while it runs, so simultaneous buyers are handled one a
 
 That is roughly 25 times faster. These are single measurements on a development machine, so treat them as a comparison, not a guarantee. Full-text search also stems words, so a search for "telescope" matches "telescopes", which `LIKE` cannot do.
 
+## Project structure
+
+```
+src/main/java/com/aydeed/shop/    controllers, services, entities, repositories
+src/main/resources/db/migration/  Flyway migrations (V1 to V4)
+src/main/resources/static/        the demo web page
+src/test/java/com/aydeed/shop/    concurrency test
+Dockerfile                        builds the app image
+docker-compose.yml                app and PostgreSQL
+```
+
 ## Limitations and next steps
 
 - One product per order (a multi-item cart is planned)
 - No login or roles yet
+- No pagination on the product list
+- The demo page remembers your holds in the browser, not on the server
 - Not deployed yet; an AWS deployment is planned
