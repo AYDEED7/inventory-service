@@ -92,14 +92,28 @@ PostgreSQL locks the row while it runs, so simultaneous buyers are handled one a
 
 **Concurrency test.** `ConcurrencyTest` starts 50 threads that all try to buy 1 item of a product with only 10 in stock. It asserts that exactly 10 orders succeed, 40 are rejected, and the final stock is 0, never negative.
 
-**Search benchmark.** On 100,000 generated products, searching for a rare word (local PostgreSQL 16 in Docker, measured with `EXPLAIN ANALYZE`):
+**Search benchmark.** How much faster is a database index than scanning every row?
 
-| Method | Plan | Execution time |
+*Setup:* 100,000 generated products in PostgreSQL 16 (running in Docker), searching for the word "telescope". It appears in 100 products, so both methods return the same 100 results.
+
+| | Slow way: `LIKE` | Fast way: full-text search with an index |
 |---|---|---|
-| `LIKE '%telescope%'` on name and description | Sequential scan, read all rows | 70.8 ms |
-| Full-text search with a GIN index | Bitmap index scan | 2.8 ms |
+| What it does | Reads every product and checks its text for the word | Looks the word up in an index, like the index at the back of a book |
+| How PostgreSQL ran it | Sequential scan: all 100,000 rows read | Bitmap index scan: went straight to the matching rows |
+| Time | **70.8 ms** | **2.8 ms** |
+| Speed | baseline | **about 25 times faster** |
 
-That is roughly 25 times faster. These are single measurements on a development machine, so treat them as a comparison, not a guarantee. Full-text search also stems words, so a search for "telescope" matches "telescopes", which `LIKE` cannot do.
+Full-text search also understands word forms, so "telescope" matches "telescopes", which `LIKE` cannot do, and it can rank the best matches first.
+
+Each time is a single `EXPLAIN ANALYZE` measurement on a development laptop, so treat the result as a comparison, not a guarantee. To repeat it, run these in `psql` after loading the data:
+
+```sql
+EXPLAIN ANALYZE SELECT id, name FROM products
+WHERE name ILIKE '%telescope%' OR description ILIKE '%telescope%';
+
+EXPLAIN ANALYZE SELECT id, name FROM products
+WHERE search_vector @@ websearch_to_tsquery('english', 'telescope');
+```
 
 ## Project structure
 
