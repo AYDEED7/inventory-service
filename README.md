@@ -2,10 +2,6 @@
 
 A backend service with a small web page for reserving stock. When a customer starts checkout, the items are held for a limited time. If they don't pay in time, the hold expires and the stock goes back on the shelf. The service never oversells, even when many people buy at the same moment.
 
-<!-- Add this line once docs/screenshot.png exists:
-![Stockroom page with a hold counting down](docs/screenshot.png)
--->
-
 ## Features
 
 - Product catalogue with categories, validation, and create, read, update and delete
@@ -29,13 +25,11 @@ A backend service with a small web page for reserving stock. When a customer sta
 
 ## Run it
 
-You only need Docker.
+You only need Docker. Run these commands:
 
-```
-git clone https://github.com/AYDEED7/inventory-service.git
-cd inventory-service
-docker compose up -d --build
-```
+    git clone https://github.com/AYDEED7/inventory-service.git
+    cd inventory-service
+    docker compose up -d --build
 
 Then open http://localhost:8081/ in your browser. The first build takes a few minutes.
 
@@ -45,7 +39,7 @@ Then open http://localhost:8081/ in your browser. The first build takes a few mi
 
 To run the app from your editor instead, start only the database with `docker compose up -d db`, then run `ShopApplication` or `./mvnw spring-boot:run`. Stop the Docker `app` container first, because both use port 8081.
 
-To run the tests, start the database (`docker compose up -d db`) and run `./mvnw test`.
+To run the tests, start the database with `docker compose up -d db` and run `./mvnw test`.
 
 ## API
 
@@ -69,9 +63,7 @@ Errors use standard status codes: 400 for invalid input, 404 for a missing produ
 
 **No overselling.** Reading the stock in Java, checking it, then writing it back lets two buyers both succeed. Instead, reserving is one SQL statement:
 
-```sql
-UPDATE products SET stock = stock - :qty WHERE id = :id AND stock >= :qty
-```
+    UPDATE products SET stock = stock - :qty WHERE id = :id AND stock >= :qty
 
 PostgreSQL locks the row while it runs, so simultaneous buyers are handled one at a time. Zero rows updated means there was not enough stock.
 
@@ -109,14 +101,12 @@ The indexed search was about 25 times faster. Each time is one `EXPLAIN ANALYZE`
 
 ## Project structure
 
-```
-src/main/java/com/aydeed/shop/    controllers, services, entities, repositories
-src/main/resources/db/migration/  Flyway migrations
-src/main/resources/static/        the demo web page
-src/test/java/com/aydeed/shop/    concurrency test
-Dockerfile                        builds the app image
-docker-compose.yml                app and PostgreSQL
-```
+    src/main/java/com/aydeed/shop/    controllers, services, entities, repositories
+    src/main/resources/db/migration/  Flyway migrations
+    src/main/resources/static/        the demo web page
+    src/test/java/com/aydeed/shop/    concurrency test
+    Dockerfile                        builds the app image
+    docker-compose.yml                app and PostgreSQL
 
 ## Limitations and next steps
 
